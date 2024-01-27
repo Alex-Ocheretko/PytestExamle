@@ -1,8 +1,12 @@
-from test.UI.locators import base_page_locators
+from selenium.webdriver.common.by import By
+
 from test.UI.page_object.base_page import BasePage
+
+
+FORMS_BUTTON = (By.XPATH, "//div[@class='category-cards']//h5[text()='Forms']/../..")
 
 
 class HomePage(BasePage):
 
     def click_forms_button(self):
-        self.click(base_page_locators.FORMS_BUTTON, 10)
+        self.click(FORMS_BUTTON)

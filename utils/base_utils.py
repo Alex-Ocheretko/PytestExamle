@@ -1,3 +1,2 @@
 BASE_UPL = "https://demoqa.com/"
-
-BASE_TIME_OUT = 10
+DEFAULT_EXPLICIT_WAIT = 5

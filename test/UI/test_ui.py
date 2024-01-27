@@ -1,32 +1,28 @@
-import random
-import string
-
 import allure
 import pytest
 
+from core.enums.gender import Gender
+from core.enums.user import User
 from test.UI.page_object.home_page import HomePage
 from test.UI.page_object.forms_page import FormsPage
 
 
 @pytest.mark.usefixtures("driver")
-class TestUI:
+class TestStudentRegistration:
 
     @allure.severity(allure.severity_level.CRITICAL)
-    @pytest.mark.parametrize("first_name, last_name, gender", [("Olivia", "Smith", "Female"),
-                                                               ("Oliver", "Jones", "Male"),
-                                                               ("Princes", "George", "Other")])
-    def test_student_registration_form(self, first_name, last_name, gender):
+    @pytest.mark.parametrize("first_name, last_name, gender,   phone", [
+                            ("Olivia",    "Smith",   "Female", "1234567890"),
+                            ("Oliver",    "Jones",   "Male",   "9876543210"),
+                            ("Princes",   "George",  "Other",  "0147258369")])
+    def test_student_registration_with_required_fields(self, first_name, last_name, gender, phone):
         home_page = HomePage(self.driver)
         forms_page = FormsPage(self.driver)
-        phone = "".join(random.sample(string.digits, 10))
+        user = User(first_name=first_name, last_name=last_name, gender=Gender(gender), phone=phone)
         home_page.click_forms_button()
         forms_page.click_practice_form()
-        forms_page.fill_first_name(first_name)
-        forms_page.fill_last_name(last_name)
-        forms_page.enter_mobile_phone(phone)
-        forms_page.click_gender_radio_button(gender)
+        forms_page.registrate_user(user)
         forms_page.click_submit_button()
-        forms_page.wait_until_submitted_data_window_opens()
         assert forms_page.get_name_on_window_of_submitted_data() == f"{first_name} {last_name}"
         assert forms_page.get_phone_on_window_of_submitted_data() == phone
         assert forms_page.get_gender_on_window_of_submitted_data() == gender
