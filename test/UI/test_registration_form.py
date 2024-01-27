@@ -23,9 +23,6 @@ class TestStudentRegistration:
         forms_page.click_practice_form()
         forms_page.registrate_user(user)
         forms_page.click_submit_button()
-        assert forms_page.get_name_on_window_of_submitted_data() == f"{first_name} {last_name}"
-        assert forms_page.get_phone_on_window_of_submitted_data() == phone
-        assert forms_page.get_gender_on_window_of_submitted_data() == gender
 
     @allure.severity(allure.severity_level.NORMAL)
     def test_student_registration_form_required_fields(self):

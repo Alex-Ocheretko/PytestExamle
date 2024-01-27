@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from core.decorators import handle_none_argument
 from core.enums.hobby import Hobby
 from core.enums.user import User
-from test.UI.page_object.base_page import BasePage, replace_placeholders_in_locator
+from test.UI.page_object.base_page import BasePage
 from utils.base_utils import DEFAULT_EXPLICIT_WAIT
 
 
@@ -24,10 +24,7 @@ class FormsPage(BasePage):
     HOBBY_CHECKBOX = (By.XPATH, "//label[contains(@for,'hobbies-checkbox-') and contains(text(), '{}')]")
     CURRENT_ADDRESS_FIELD = (By.XPATH, "//textarea[@placeholder='Current Address']")
 
-    WINDOW_OF_SUBMITTED_DATA = (By.CSS_SELECTOR, "div.modal-content")
-    NAME_ON_WINDOW_OF_SUBMITTED_DATA = (By.XPATH, "//td[text()='Student Name']/../td[2]")
-    PHONE_ON_WINDOW_OF_SUBMITTED_DATA = (By.XPATH, "//td[text()='Mobile']/../td[2]")
-    GENDER_ON_WINDOW_OF_SUBMITTED_DATA = (By.XPATH, "//td[text()='Gender']/../td[2]")
+    WINDOW_OF_SUBMITTED_DATA = (By.XPATH, "//div[text()='Thanks for submitting the form']")
 
     # Student Registration Form
     def registrate_user(self, user: User):
@@ -57,7 +54,7 @@ class FormsPage(BasePage):
         self.send_keys(self.EMAIL_FIELD, email)
 
     def click_gender_radio_button(self, gender: str):
-        self.click(replace_placeholders_in_locator(self.GENDER_RADIO_BUTTON, gender))
+        self.click(self.replace_placeholders_in_locator(self.GENDER_RADIO_BUTTON, gender))
 
     def enter_mobile_phone(self, phone: str):
         self.send_keys(self.PHONE_FIELD, phone)
@@ -73,7 +70,7 @@ class FormsPage(BasePage):
     @handle_none_argument
     def click_hobby(self, hobbies: List[Hobby]):
         for hobby in hobbies:
-            self.click(replace_placeholders_in_locator(self.HOBBY_CHECKBOX, hobby))
+            self.click(self.replace_placeholders_in_locator(self.HOBBY_CHECKBOX, hobby))
 
     @handle_none_argument
     def enter_current_address(self, address: str):
@@ -91,7 +88,6 @@ class FormsPage(BasePage):
         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
         self.click(self.SUBMIT_BUTTON)
         self.wait_until_submitted_data_window_opens()
-
 
     def check_visibility_of_alert_symbol_on_first_name_field(self) -> bool:
         value = self.value_of_css_property(self.FIRST_NAME_FIELD, "background-image")
@@ -113,14 +109,9 @@ class FormsPage(BasePage):
         WebDriverWait(self.driver, DEFAULT_EXPLICIT_WAIT).until(
             EC.presence_of_element_located(self.WINDOW_OF_SUBMITTED_DATA))
 
-    def get_name_on_window_of_submitted_data(self) -> str:
-        name = self.get_text(self.NAME_ON_WINDOW_OF_SUBMITTED_DATA)
-        return name
+    class SubmittedDataForm:
 
-    def get_phone_on_window_of_submitted_data(self) -> str:
-        phone = self.get_text(self.PHONE_ON_WINDOW_OF_SUBMITTED_DATA)
-        return phone
+        VALUE_FIELD = (By.XPATH, "//td[text()='{}']/following-sibling::td")
 
-    def get_gender_on_window_of_submitted_data(self) -> str:
-        gender = self.get_text(self.GENDER_ON_WINDOW_OF_SUBMITTED_DATA)
-        return gender
+        def get_value_by_label(self, label: str) -> str:
+            return self.get_text(self, self.replace_placeholders_in_locator(self.VALUE_FIELD, label))
