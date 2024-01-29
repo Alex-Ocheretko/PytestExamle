@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from typing import List
 
 from selenium.webdriver.common.by import By
@@ -6,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from core.decorators import handle_none_argument
 from core.enums.hobby import Hobby
-from core.enums.user import User
+from core.enums.user import User, convert_user_object_to_dict
 from test.UI.page_object.base_page import BasePage
 from utils.base_utils import DEFAULT_EXPLICIT_WAIT
 
@@ -40,54 +41,53 @@ class FormsPage(BasePage):
         self.enter_state(user.state)
         self.enter_city(user.state)
 
-    def click_practice_form(self):
+    def click_practice_form(self) -> None:
         self.click(self.PRACTICE_FORM)
 
-    def enter_first_name(self, first_name: str):
+    def enter_first_name(self, first_name: str) -> None:
         self.send_keys(self.FIRST_NAME_FIELD, first_name)
 
-    def enter_last_name(self, last_name: str):
+    def enter_last_name(self, last_name: str) -> None:
         self.send_keys(self.LAST_NAME_FIELD, last_name)
 
     @handle_none_argument
-    def enter_email(self, email: str):
+    def enter_email(self, email: str) -> None:
         self.send_keys(self.EMAIL_FIELD, email)
 
-    def click_gender_radio_button(self, gender: str):
+    def click_gender_radio_button(self, gender: str) -> None:
         self.click(self.replace_placeholders_in_locator(self.GENDER_RADIO_BUTTON, gender))
 
-    def enter_mobile_phone(self, phone: str):
+    def enter_mobile_phone(self, phone: str) -> None:
         self.send_keys(self.PHONE_FIELD, phone)
 
     @handle_none_argument
-    def enter_date_of_birth(self, date_of_birth: str):
+    def enter_date_of_birth(self, date_of_birth: str) -> None:
         self.send_keys(self.DATE_OF_BIRTH_FIELD, date_of_birth)
 
     @handle_none_argument
-    def enter_subjects(self, subjects: str):
+    def enter_subjects(self, subjects: str) -> None:
         self.send_keys(self.SUBJECTS_FIELD, subjects)
 
     @handle_none_argument
-    def click_hobby(self, hobbies: List[Hobby]):
+    def click_hobby(self, hobbies: List[Hobby]) -> None:
         for hobby in hobbies:
             self.click(self.replace_placeholders_in_locator(self.HOBBY_CHECKBOX, hobby))
 
     @handle_none_argument
-    def enter_current_address(self, address: str):
+    def enter_current_address(self, address: str) -> None:
         self.send_keys(self.CURRENT_ADDRESS_FIELD, address)
 
     @handle_none_argument
-    def enter_state(self, state):
+    def enter_state(self, state) -> None:
         pass
 
     @handle_none_argument
-    def enter_city(self, city):
+    def enter_city(self, city) -> None:
         pass
 
-    def click_submit_button(self):
+    def click_submit_button(self) -> None:
         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
         self.click(self.SUBMIT_BUTTON)
-        self.wait_until_submitted_data_window_opens()
 
     def check_visibility_of_alert_symbol_on_first_name_field(self) -> bool:
         value = self.value_of_css_property(self.FIRST_NAME_FIELD, "background-image")
@@ -105,13 +105,31 @@ class FormsPage(BasePage):
             return True
 
     # submitted data window
-    def wait_until_submitted_data_window_opens(self):
+    def wait_until_submitted_data_window_opens(self) -> None:
         WebDriverWait(self.driver, DEFAULT_EXPLICIT_WAIT).until(
             EC.presence_of_element_located(self.WINDOW_OF_SUBMITTED_DATA))
 
-    class SubmittedDataForm:
+    class SubmittedDataForm(BasePage):
 
         VALUE_FIELD = (By.XPATH, "//td[text()='{}']/following-sibling::td")
 
+        labels = {"student_name": "Student Name",
+                  "phone": "Mobile",
+                  "gender": "Gender",
+                  "email": "Student Email",
+                  "date_of_birth": "Date of Birth",
+                  "subjects": "Subjects",
+                  "hobbies": "Hobbies",
+                  "current_address": "Address",
+                  "state_and_city": "State and City"}
+
         def get_value_by_label(self, label: str) -> str:
-            return self.get_text(self, self.replace_placeholders_in_locator(self.VALUE_FIELD, label))
+            return self.get_text(self.replace_placeholders_in_locator(self.VALUE_FIELD, self.labels[label]))
+
+        def check_student_data(self, user: User) -> List[bool]:
+            result = []
+            expected_date = convert_user_object_to_dict(user)
+            for kay, value in expected_date.items():
+                if value:
+                    result.append(self.get_value_by_label(kay) == value)
+            return result
