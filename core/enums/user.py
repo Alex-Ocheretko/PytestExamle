@@ -13,7 +13,7 @@ class User:
     gender: Gender
     email: str = None
     date_of_birth: str = None
-    subjects: str = None
+    subjects: List[str] = None
     hobbies: List[Hobby] = None
     current_address: str = None
     state: str = None
@@ -25,6 +25,10 @@ def convert_user_object_to_dict(user: User) -> dict:
     expected_date["student_name"] = f"{user.first_name} {user.last_name}"
     if user.state and user.city:
         expected_date["state_and_city"] = f"{user.state} {user.city}"
+    if expected_date["subjects"]:
+        expected_date["subjects"] = ", ".join(expected_date["subjects"])
+    if expected_date["hobbies"]:
+        expected_date["hobbies"] = ", ".join(expected_date["hobbies"])
     del expected_date["first_name"]
     del expected_date["last_name"]
     del expected_date["state"]
