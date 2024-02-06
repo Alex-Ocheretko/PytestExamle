@@ -2,6 +2,7 @@ import allure
 import pytest
 
 from core.enums.gender import Gender
+from core.enums.hobby import Hobby
 from core.enums.user import User
 from test.UI.page_object.home_page import HomePage
 from test.UI.page_object.forms_page import FormsPage
@@ -21,10 +22,30 @@ class TestStudentRegistration:
         user = User(first_name=first_name, last_name=last_name, gender=Gender(gender), phone=phone)
         home_page.click_forms_button()
         forms_page.click_practice_form()
-        forms_page.registrate_user(user)
+        forms_page.register_user(user)
         forms_page.click_submit_button()
-        forms_page.wait_until_submitted_data_window_opens()
-        assert submitted_data_form.check_student_data(user), "Some data have not been displayed on submitted data form."
+        submitted_data_form.wait_for_shown()
+        result = submitted_data_form.check_student_data(user)
+        assert all(result.values()), ("Submitted date have incorrect value! \n"
+                                      f"{result}")
+
+    @allure.severity(allure.severity_level.NORMAL)
+    def test_student_registration_with_all_fields(self, driver):
+        home_page = HomePage(driver)
+        forms_page = FormsPage(driver)
+        submitted_data_form = forms_page.SubmittedDataForm(driver)
+        user = User(first_name="Olivia", last_name="Jones", gender=Gender("Male"), phone="9876543210",
+                    email="example@for.com", date_of_birth="03 Jan 1920", subjects=["Maths", "Hindi"],
+                    hobbies=[Hobby("Sports"), Hobby("Reading")], current_address="1193 Lincoln Street", state="NCR",
+                    city="Delhi")
+        home_page.click_forms_button()
+        forms_page.click_practice_form()
+        forms_page.register_user(user)
+        forms_page.click_submit_button()
+        submitted_data_form.wait_for_shown()
+        result = submitted_data_form.check_student_data(user)
+        assert all(result.values()), ("Submitted date have incorrect value! \n"
+                                      f"{result}")
 
     @allure.severity(allure.severity_level.NORMAL)
     def test_student_registration_form_required_fields(self, driver):

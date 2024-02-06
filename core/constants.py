@@ -1,0 +1,3 @@
+BASE_URL = "https://demoqa.com/"
+DEFAULT_EXPLICIT_WAIT = 5
+DEFAULT_IMPLICIT_WAIT = 7

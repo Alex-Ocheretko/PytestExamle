@@ -1,7 +1,7 @@
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from utils.base_utils import DEFAULT_EXPLICIT_WAIT
+from core.constants import DEFAULT_EXPLICIT_WAIT
 
 
 class BasePage:
@@ -28,13 +28,3 @@ class BasePage:
             EC.presence_of_element_located(locator)
         ).value_of_css_property(f"{property_name}")
         return value
-
-    @staticmethod
-    def replace_placeholders_in_locator(locator: tuple[str, str], replacement: list or str) -> tuple[str, str]:
-        if isinstance(replacement, list):
-            for item in replacement:
-                locator = (locator[0], locator[1].replace('{}', str(item)))
-        else:
-            locator = (locator[0], locator[1].replace('{}', str(replacement)))
-
-        return locator

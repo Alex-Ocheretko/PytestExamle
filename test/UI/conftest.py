@@ -11,7 +11,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service as ChromeService
 import os
 
-from utils.base_utils import BASE_UPL
+from core.constants import BASE_URL, DEFAULT_IMPLICIT_WAIT
 
 
 @pytest.fixture
@@ -32,9 +32,9 @@ def driver(browser, request):
                 command_executor="http://192.168.0.1",
                 desired_capabilities=capabilities)
     driver.maximize_window()
-    driver.implicitly_wait(5)
+    driver.implicitly_wait(DEFAULT_IMPLICIT_WAIT)
     request.cls.driver = driver
-    driver.get(BASE_UPL)
+    driver.get(BASE_URL)
     yield driver
     driver.quit()
 
@@ -53,7 +53,7 @@ def install_ad_blocker() -> Options:
     return chrome_options
 
 
-def wait_until_ad_blocker_installed(driver):
+def wait_until_ad_blocker_installed(driver) -> None:
     try:
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div.installed__container"))
@@ -66,7 +66,7 @@ def wait_until_ad_blocker_installed(driver):
     driver.switch_to.window(window_handles[0])
 
 
-def pytest_addoption(parser):
+def pytest_addoption(parser) -> None:
     parser.addoption(
         "--browser", action="store", default="chrome", help="My options: chrome or firefox"
     )

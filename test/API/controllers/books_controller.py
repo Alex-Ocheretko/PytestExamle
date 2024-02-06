@@ -1,12 +1,12 @@
 import requests
 
-from utils.base_utils import BASE_UPL
+from core.constants import BASE_URL
 
 
 class Book:
 
     def __init__(self):
-        self.base_url = BASE_UPL + "BookStore/v1/Books"
+        self.base_url = BASE_URL + "BookStore/v1/Books"
 
     def get_books(self):
         return requests.get(self.base_url)
